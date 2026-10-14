@@ -16,6 +16,8 @@ on:
         required: true
         default: examples/diagnostico-gratis-reel-test.json
   push:
+    # Sin esto tambien corre al subir un tag: GitHub ignora `paths` en los tags.
+    branches: ["**"]
     paths:
       - "motion/scenes/**.json"
       - "escenas/**.json"
