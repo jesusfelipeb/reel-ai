@@ -1,11 +1,14 @@
 name: Imagen Docker
 
 # Construye la imagen para Intel/AMD (amd64) y ARM (arm64: Mac con chip M, Raspberry Pi),
-# la prueba renderizando capturas reales en las dos, y solo entonces la publica en
-# ghcr.io/<dueño>/reel-ai.
+# cada una en su propio hardware, la prueba renderizando capturas reales, y solo entonces
+# la publica en ghcr.io/<dueño>/reel-ai como una sola imagen multiplataforma.
 #
 #   - Tag vX.Y.Z  -> publica :X.Y.Z y :latest
 #   - Run workflow manual o PR que toca la imagen -> construye y prueba, no publica
+#
+# ARM corre en un runner ARM nativo y no emulado: Chromium bajo QEMU se cae
+# ("qemu: uncaught target signal 5"), asi que una prueba emulada no prueba nada.
 
 on:
   push:
@@ -22,43 +25,45 @@ concurrency:
   group: docker-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/reel-ai
+
 jobs:
-  image:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
-
-      # arm64 se construye emulado: mas lento, pero no depende del plan de la cuenta.
-      - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
 
-      - name: Construir y probar (amd64 y arm64)
+      - name: Construir para probar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          load: true
+          tags: reel-ai:test
+          cache-from: type=gha,scope=${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+
+      # Captura real con Chromium + validacion: si la imagen esta rota, falla aca y no se publica.
+      - name: Probar
         run: |
           set -eu
+          docker run --rm reel-ai:test doctor
           mkdir -p prueba
-          for plat in linux/amd64 linux/arm64; do
-            tag="reel-ai:test-${plat#linux/}"
-            docker buildx build --platform "$plat" --load -t "$tag" \
-              --cache-from type=gha,scope="$plat" --cache-to type=gha,mode=max,scope="$plat" .
-            docker run --rm --platform "$plat" "$tag" doctor
-            # Captura real con Chromium + validacion: si la imagen esta rota, falla aca.
-            docker run --rm --platform "$plat" --user "$(id -u):$(id -g)" -v "$PWD/prueba:/work" "$tag" \
-              stills /app/examples/diagnostico-gratis-reel-test.json --at 3,22 --json
-            test "$(find prueba/output/stills -name 'still-*.png' | wc -l)" -ge 2
-            rm -rf prueba/output
-          done
-
-      - name: Etiquetas
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/reel-ai
-          tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=latest
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/prueba:/work" reel-ai:test \
+            stills /app/examples/primer-video.json --at 3,28 --json
+          test "$(find prueba/output/stills -name 'still-*.png' | wc -l)" -ge 2
 
       - name: Login a GHCR
         if: startsWith(github.ref, 'refs/tags/v')
@@ -68,15 +73,67 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publicar
+      # Se sube sin etiqueta (solo por digest); el job `publicar` arma la imagen multiplataforma.
+      - name: Subir esta arquitectura
         if: startsWith(github.ref, 'refs/tags/v')
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: |
-            type=gha,scope=linux/amd64
-            type=gha,scope=linux/arm64
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ matrix.platform }}
+
+      - name: Guardar el digest
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          mkdir -p digests
+          touch "digests/${DIGEST#sha256:}"
+
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.runner }}
+          path: digests/*
+          retention-days: 1
+          if-no-files-found: error
+
+  publicar:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Etiquetas
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+
+      - name: Publicar imagen multiplataforma
+        working-directory: digests
+        run: |
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf "$IMAGE@sha256:%s " *)
+
+      - name: Verificar
+        run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"

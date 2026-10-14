@@ -27,8 +27,10 @@ def render_frames(timeline_path: Path, frames_dir: Path, only: str | None = None
     cmd = ["node", str(BASE_DIR / "motion/render_text.cjs"), str(timeline_path), str(frames_dir), str(FPS), str(WORKERS)]
     if only:
         cmd.append(only)
-    # El progreso va a stderr: stdout queda libre para la salida --json de reel.py
-    subprocess.run(cmd, check=True, env=env, stdout=sys.stderr)
+    # El progreso va a stderr: stdout queda libre para la salida --json de reel.py.
+    # El stderr de node se captura para que, si falla, el error llegue a quien llamo
+    # (antes el JSON decia solo "Fallo node" y la causa quedaba suelta en la consola).
+    subprocess.run(cmd, check=True, env=env, stdout=sys.stderr, stderr=subprocess.PIPE)
 
 
 def compose(scene_path: Path, reuse_frames: bool, stills: str | None) -> Path:
