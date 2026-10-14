@@ -1,0 +1,61 @@
+{
+  "name": "ia-hogar",
+  "brand": "sintergia",
+  "duration": 44.0,
+  "beats": [
+    {
+      "type": "hook", "in": 0.0, "out": 4.4,
+      "chip": "IA EN EL HOGAR",
+      "lines": ["8 FORMAS", "DE USAR", "LA IA", "EN CASA"],
+      "accent": [2, 3]
+    },
+    {
+      "type": "tasks", "in": 4.4, "out": 10.2,
+      "chip": "LA CARGA INVISIBLE",
+      "title": "CADA SEMANA",
+      "tasks": ["¿QUÉ COCINO?", "¿QUÉ COMPRO?", "¿CUÁNTO GASTO?", "¿QUIÉN LIMPIA?"],
+      "times": "× 52 SEMANAS",
+      "stamp": "AGOTADOR"
+    },
+    {
+      "type": "steps", "in": 10.2, "out": 19.4,
+      "chip": "COCINA Y COMPRAS",
+      "steps": [
+        {"title": "FOTO", "sub": "a la heladera → recetas con lo que hay"},
+        {"title": "MENÚ", "sub": "semanal, para tu familia y presupuesto"},
+        {"title": "LISTA", "sub": "del súper, ordenada por categorías"}
+      ]
+    },
+    {
+      "type": "list", "in": 19.4, "out": 27.4,
+      "chip": "ORGANIZACIÓN",
+      "items": [
+        {"title": "PRESUPUESTO MENSUAL", "sub": "te muestra dónde puedes ahorrar"},
+        {"title": "PLAN DE LIMPIEZA", "sub": "realista, repartido por días"},
+        {"title": "RECORDATORIOS", "sub": "pagos, turnos médicos, tareas"}
+      ]
+    },
+    {
+      "type": "tags", "in": 27.4, "out": 33.6,
+      "chip": "EL DÍA A DÍA",
+      "lines": ["TAMBIÉN TE", "AYUDA CON:"],
+      "tags": ["ARREGLOS", "MANCHAS DIFÍCILES", "TAREAS DEL COLE", "TRÁMITES", "PLANTAS", "VIAJES EN FAMILIA"],
+      "accent": 2
+    },
+    {
+      "type": "swap", "in": 33.6, "out": 38.8,
+      "kicker": "LO QUE CAMBIA",
+      "from": "PENSAR",
+      "to": "DECIDIR",
+      "sub": "LA IA PROPONE. TÚ ELIGES."
+    },
+    {
+      "type": "end", "in": 38.8, "out": 44.0,
+      "wordmark": "Sintergia",
+      "studio": "STUDIO",
+      "headline": ["¿CUÁL VAS A", "PROBAR PRIMERO?"],
+      "cta": "GUÁRDALO PARA DESPUÉS",
+      "handle": "@sintergiastudio"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "diagnostico-gratis",
+  "brand": "sintergia",
+  "duration": 44.0,
+  "beats": [
+    {
+      "type": "hook", "in": 0.0, "out": 4.4,
+      "chip": "PROFESIONALES INDEPENDIENTES",
+      "lines": ["¿NECESITAS", "UNA WEB", "O ESTÁS", "PERDIDO?"],
+      "accent": [2, 3]
+    },
+    {
+      "type": "tasks", "in": 4.4, "out": 10.2,
+      "chip": "LA MISMA DUDA DE SIEMPRE",
+      "title": "¿QUÉ HAGO?",
+      "tasks": ["¿PÁGINA WEB?", "¿SOLO REDES?", "¿AGENTE DE IA?", "¿O ESPERAR?"],
+      "times": "AÑO TRAS AÑO",
+      "stamp": "SIN CLARIDAD"
+    },
+    {
+      "type": "steps", "in": 10.2, "out": 19.4,
+      "chip": "DIAGNÓSTICO GRATIS · 15 MIN",
+      "steps": [
+        {"title": "REVISO", "sub": "cómo captas pacientes o clientes"},
+        {"title": "TE DIGO", "sub": "si necesitas web, agente IA o nada aún"},
+        {"title": "SALES", "sub": "con un plan claro, sin compromiso"}
+      ]
+    },
+    {
+      "type": "list", "in": 19.4, "out": 27.4,
+      "chip": "QUÉ TE LLEVAS",
+      "items": [
+        {"title": "UN DIAGNÓSTICO HONESTO", "sub": "sin venta forzada, solo datos"},
+        {"title": "UN PLAN CLARO", "sub": "web, agente de IA, o nada todavía"},
+        {"title": "15 MINUTOS, GRATIS", "sub": "aunque no trabajemos juntos"}
+      ]
+    },
+    {
+      "type": "tags", "in": 27.4, "out": 33.6,
+      "chip": "ESTO ES PARA TI SI ERES",
+      "lines": ["PROFESIONAL", "INDEPENDIENTE"],
+      "tags": ["MÉDICO", "ABOGADO", "CONTADOR", "TERAPEUTA", "COACH", "CONSULTOR"],
+      "accent": 0
+    },
+    {
+      "type": "swap", "in": 33.6, "out": 38.8,
+      "kicker": "TU SITUACIÓN CAMBIA",
+      "from": "DUDA",
+      "to": "CLARO",
+      "sub": "AUNQUE NO TRABAJEMOS JUNTOS"
+    },
+    {
+      "type": "end", "in": 38.8, "out": 44.0,
+      "wordmark": "Sintergia",
+      "studio": "STUDIO",
+      "headline": ["¿LISTO PARA", "SABERLO?"],
+      "cta": "ESCRIBE DIAGNÓSTICO",
+      "handle": "@sintergiastudio"
+    }
+  ]
+}

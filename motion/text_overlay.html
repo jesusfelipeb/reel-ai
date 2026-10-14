@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>videoreel text short</title>
+<style>
+@font-face { font-family: 'IT'; src: url('../fonts/InterTight-Black.woff') format('woff'); font-weight: 900; }
+@font-face { font-family: 'JB'; src: url('../fonts/JetBrainsMono-Bold.woff') format('woff'); font-weight: 700; }
+@font-face { font-family: 'FR'; src: url('../fonts/Fraunces-Medium.woff') format('woff'); font-weight: 500; }
+/* PALETA — estos valores son el tema "neutral" y actuan solo de respaldo: durante el render
+   los pisa themes/<marca>.json, la misma fuente que lee config/brand.py (ver docs/MARCA.md).
+   Quedan escritos aca para poder abrir este archivo suelto en el navegador mientras se
+   disena, sin pasar por el pipeline. */
+:root {
+  --navy: #0B1220; --surface: #161F2E; --deep: #0E1724;
+  --white: #F7F9FC; --muted: #9AA6B8; --dot: #22304A;
+  --cyan: #38BDF8; --lime: #A3E635; --orange: #FB923C;
+
+  /* ROLES del tema oscuro (default): variables "vivas" que el tema claro redefine abajo */
+  --bg: var(--navy); --ink: var(--white); --flash: #fff;
+  --lime-ink: var(--lime); --orange-ink: var(--orange); --cyan-ink: var(--cyan);
+  /* derivados con color-mix para que sigan a la paleta: antes estaban escritos como
+     rgba() literal y se quedaban con el color viejo al cambiar de marca */
+  --dot-rgba: color-mix(in srgb, var(--ink) 6%, transparent);
+  --progress-track-rgba: color-mix(in srgb, var(--ink) 18%, transparent);
+  --glow1: color-mix(in srgb, var(--cyan) 22%, transparent);
+  --glow2: color-mix(in srgb, var(--lime) 12%, transparent);
+}
+body[data-theme="light"] {
+  /* tema claro: fondo blanco con textura sutil; el texto suelto (no las pastillas de
+     color solido) pasa a una variante mas oscura/saturada del mismo tono de marca para
+     mantener el contraste — las pastillas (chip/stamp/cta/check) no cambian, ya llevan
+     texto navy encima de un fondo de color solido que funciona en cualquier fondo de pagina. */
+  --bg: #FAFAFA; --ink: var(--navy); --flash: var(--navy);
+  --muted: #4B5563;
+  --cyan-ink: #0369A1; --lime-ink: #4D7C0F; --orange-ink: #C2410C;
+  /* los derivados de --ink hay que repetirlos aca: el :root los resolvio contra el --ink
+     del tema oscuro, porque este bloque redefine --ink en body y no en :root */
+  --dot-rgba: color-mix(in srgb, var(--ink) 6%, transparent);
+  --progress-track-rgba: color-mix(in srgb, var(--ink) 12%, transparent);
+  --glow1: color-mix(in srgb, var(--cyan) 12%, transparent);
+  --glow2: color-mix(in srgb, var(--lime) 16%, transparent);
+}
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+body { font-family: 'IT', sans-serif; font-weight: 900; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.abs { position: absolute; }
+.mask { overflow: hidden; }
+.mono { font-family: 'JB', monospace; font-weight: 700; }
+.chip { font-family: 'JB', monospace; font-weight: 700; font-size: 32px; letter-spacing: .14em;
+  color: var(--navy); background: var(--cyan); padding: 12px 18px; border-radius: 8px; display: inline-block; white-space: nowrap; }
+.beat { left: 0; top: 0; width: 1080px; height: 1920px; }
+
+/* fondo */
+#bg { left: 0; top: 0; width: 1080px; height: 1920px;
+  background-image: radial-gradient(var(--dot-rgba) 2px, transparent 2px); background-size: 36px 36px; }
+.glow { width: 1100px; height: 1100px; border-radius: 50%; filter: blur(40px); }
+#progress-track { left: 0; top: 0; width: 1080px; height: 10px; background: var(--progress-track-rgba); }
+#progress { left: 0; top: 0; height: 10px; width: 0; background: var(--lime-ink); }
+
+/* hook */
+.hline { font-size: 132px; line-height: 1.02; letter-spacing: -.015em; white-space: nowrap; height: 136px; }
+.hline > span { display: inline-block; }
+
+/* tasks */
+.title-xl { font-size: 104px; line-height: 1.08; letter-spacing: -.015em; white-space: nowrap; }
+.task { left: 90px; display: flex; align-items: center; gap: 30px; font-size: 70px; letter-spacing: -.01em; white-space: nowrap; }
+.box { width: 54px; height: 54px; border: 6px solid var(--muted); border-radius: 12px; box-sizing: border-box; }
+.stamp { background: var(--orange); color: var(--navy); font-size: 66px; padding: 16px 30px; border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45); white-space: nowrap; transform-origin: center; }
+
+/* steps */
+.step { left: 90px; display: flex; align-items: center; gap: 40px; height: 200px; }
+.num { width: 104px; height: 104px; border-radius: 50%; background: var(--navy); border: 6px solid var(--dot); box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; font-family: 'JB', monospace; font-weight: 700; font-size: 38px; color: var(--muted); flex: none; }
+.step .t { font-size: 92px; line-height: 1; letter-spacing: -.015em; white-space: nowrap; }
+.step .s { font-family: 'JB', monospace; font-weight: 700; font-size: 34px; color: var(--muted); margin-top: 14px; white-space: nowrap; }
+
+/* result */
+.frame169 { width: 380px; height: 214px; border: 6px solid var(--ink); border-radius: 18px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; background: var(--surface); }
+.phone { width: 72px; height: 128px; border: 5px solid var(--lime-ink); border-radius: 14px; box-sizing: border-box; background: var(--surface); }
+.phone i { position: absolute; left: 10px; right: 10px; bottom: 16px; height: 9px; border-radius: 5px; background: var(--lime-ink); }
+.big { font-size: 156px; line-height: 1; letter-spacing: -.02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* list */
+.item { left: 90px; display: flex; align-items: flex-start; gap: 36px; width: 900px; }
+.check { width: 96px; height: 96px; border-radius: 22px; background: var(--lime); flex: none; display: flex; align-items: center; justify-content: center; }
+.item .t { font-size: 70px; line-height: 1.02; letter-spacing: -.015em; }
+.item .s { font-family: 'JB', monospace; font-weight: 700; font-size: 32px; color: var(--muted); margin-top: 12px; }
+
+/* tags */
+.tags { left: 90px; width: 900px; display: flex; flex-wrap: wrap; gap: 24px; }
+.tag { font-size: 56px; padding: 20px 32px; border-radius: 20px; border: 5px solid var(--cyan-ink); white-space: nowrap; display: inline-block; }
+.tag.accent { background: var(--lime); color: var(--navy); border-color: var(--lime); }
+
+/* swap */
+.kicker { font-family: 'JB', monospace; font-weight: 700; font-size: 46px; letter-spacing: .16em; color: var(--cyan-ink); white-space: nowrap; }
+.sword { font-size: 190px; line-height: 1.1; letter-spacing: -.02em; white-space: nowrap; }
+.strike { height: 20px; background: var(--orange-ink); border-radius: 10px; transform-origin: left center; }
+
+/* end */
+.wordmark { font-family: 'FR', serif; font-weight: 500; font-size: 170px; line-height: 1.1; white-space: nowrap; }
+.eline { font-size: 90px; line-height: 1.0; letter-spacing: -.015em; white-space: nowrap; }
+.cta { background: var(--lime); color: var(--navy); font-size: 52px; padding: 34px 44px; border-radius: 26px;
+  transform-origin: left center; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ---------- utilidades (todo es funcion pura del tiempo t → render determinista) ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, t0, d) => clamp((t - t0) / d);
+const lerp = (a, b, x) => a + (b - a) * x;
+const E = {
+  outCubic: x => 1 - Math.pow(1 - x, 3),
+  inCubic: x => x * x * x,
+  outExpo: x => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+  inOutCubic: x => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  spring: x => (x >= 1 ? 1 : 1 - Math.exp(-6 * x) * Math.cos(9 * x)),
+};
+const $ = (markup) => { const d = document.createElement('div'); d.innerHTML = markup.trim(); return d.firstChild; };
+
+// El texto de la escena es dato NO confiable: lo genera un LLM o llega compartido por un
+// tercero, y termina en innerHTML. Sin escapar, un campo como `chip` puede traer
+// <img src=x onerror=...> y ejecutar JS en el renderer. La etiqueta `html` escapa todo lo
+// interpolado; lo que de verdad es marcado hay que marcarlo a mano con raw().
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ESC[c]);
+const raw = (s) => ({ __html: String(s) });
+const html = (strings, ...vals) =>
+  strings[0] + vals.map((v, i) => (v && v.__html !== undefined ? v.__html : esc(v)) + strings[i + 1]).join('');
+const style = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const STAGE_Y = 100;      // baja el contenido para centrarlo entre las zonas seguras
+const EXIT = 0.35;          // duracion de la salida de cada beat (termina justo en b.out)
+const CHECK_SVG = `<svg width="60" height="60" viewBox="0 0 24 24" fill="none" style="stroke:var(--navy)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19.5 7" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>`;
+
+// revela de izquierda a derecha con clip-path
+const wipe = (el, p) => style(el, { clipPath: `inset(-20px ${100 - p * 100}% -20px -20px)` });
+// sube desde abajo dentro de una mascara
+const rise = (el, p, dist = 110) => style(el, { transform: `translateY(${(1 - p) * dist}%)` });
+
+let S = null, TOTAL = 0, G = {};
+
+// ---------- beats: cada tipo sabe construirse y dibujarse en tiempo local lt ----------
+const BEATS = {
+  hook: {
+    build(b, el) {
+      b.d = {};
+      b.d.chip = el.appendChild($(html`<div class="abs" style="left:90px;top:400px"><span class="chip">${b.chip}</span></div>`));
+      b.d.lines = b.lines.map((l, i) => el.appendChild($(html`<div class="abs mask hline" style="left:90px;top:${500 + i * 136}px;width:960px">
+        <span style="color:${b.accent.includes(i) ? 'var(--lime-ink)' : 'inherit'}">${l}</span></div>`)).firstElementChild);
+    },
+    render(b, lt) {
+      wipe(b.d.chip, E.outExpo(prog(lt, 0.1, 0.5)));
+      b.d.lines.forEach((s, i) => rise(s, E.outExpo(prog(lt, 0.25 + i * 0.22, 0.6))));
+    },
+  },
+
+  tasks: {
+    build(b, el) {
+      b.d = {};
+      b.d.chip = el.appendChild($(html`<div class="abs" style="left:90px;top:330px"><span class="chip">${b.chip}</span></div>`));
+      b.d.title = el.appendChild($(html`<div class="abs mask" style="left:90px;top:420px;width:960px;height:116px"><div class="title-xl">${b.title}</div></div>`)).firstElementChild;
+      b.d.tasks = b.tasks.map((t, i) => el.appendChild($(html`<div class="task abs" style="top:${600 + i * 104}px"><div class="box"></div><span>${t}</span></div>`)));
+      b.d.times = el.appendChild($(html`<div class="abs title-xl" style="left:90px;top:1030px;color:var(--lime-ink);font-size:124px;transform-origin:left center">${b.times}</div>`));
+      b.d.stamp = el.appendChild($(html`<div class="abs stamp" style="left:300px;top:1220px">${b.stamp}</div>`));
+    },
+    render(b, lt) {
+      wipe(b.d.chip, E.outExpo(prog(lt, 0.05, 0.45)));
+      rise(b.d.title, E.outExpo(prog(lt, 0.2, 0.6)));
+      b.d.tasks.forEach((el, i) => {
+        const p = E.outBack(prog(lt, 0.9 + i * 0.45, 0.4));
+        style(el, { opacity: clamp(p * 3), transform: `translateX(${(1 - p) * -60}px)` });
+      });
+      const tp = prog(lt, 3.0, 0.6);
+      style(b.d.times, { transform: `scale(${tp > 0 ? E.spring(tp) : 0})` });
+      // sello: golpe desde grande y rotado, con rebote corto
+      const at = 3.9, st = prog(lt, at, 0.16);
+      const settle = st >= 1 ? 1 + 0.06 * Math.exp(-(lt - at - 0.16) * 14) * Math.cos((lt - at) * 40) : lerp(2.4, 1, E.inCubic(st));
+      style(b.d.stamp, { opacity: lt >= at ? 1 : 0, transform: `rotate(-6deg) scale(${settle})` });
+    },
+  },
+
+  steps: {
+    build(b, el) {
+      b.d = {};
+      b.d.chip = el.appendChild($(html`<div class="abs" style="left:90px;top:330px"><span class="chip">${b.chip}</span></div>`));
+      const y0 = 440, gap = 210;
+      b.d.line = el.appendChild($(html`<div class="abs" style="left:139px;top:${y0 + 100}px;width:6px;height:${gap * (b.steps.length - 1)}px;background:var(--cyan-ink);transform-origin:top center"></div>`));
+      b.d.steps = b.steps.map((s, i) => {
+        const row = el.appendChild($(html`<div class="step abs" style="top:${y0 + i * gap}px">
+          <div class="num">${String(i + 1).padStart(2, '0')}</div>
+          <div><div class="mask" style="height:96px"><div class="t">${s.title}</div></div><div class="s">${s.sub}</div></div></div>`));
+        return { row, num: row.querySelector('.num'), t: row.querySelector('.t'), s: row.querySelector('.s') };
+      });
+    },
+    render(b, lt, dur) {
+      wipe(b.d.chip, E.outExpo(prog(lt, 0.05, 0.45)));
+      const n = b.steps.length, first = 0.6, every = (dur - 2.6) / n;
+      // la linea se dibuja de un paso al siguiente
+      const lineP = clamp((lt - first) / (every * (n - 1)));
+      style(b.d.line, { transform: `scaleY(${E.inOutCubic(lineP)})` });
+      b.d.steps.forEach((s, i) => {
+        const at = first + i * every;
+        const p = E.outBack(prog(lt, at, 0.45));
+        const active = lt >= at && (i === n - 1 || lt < at + every);
+        style(s.num, { transform: `scale(${p})`, background: lt >= at ? 'var(--lime)' : 'var(--navy)',
+          borderColor: lt >= at ? 'var(--lime)' : 'var(--dot)', color: lt >= at ? 'var(--navy)' : 'var(--muted)' });
+        rise(s.t, E.outExpo(prog(lt, at + 0.08, 0.55)));
+        const sp = E.outCubic(prog(lt, at + 0.3, 0.5));
+        style(s.s, { opacity: sp, transform: `translateY(${(1 - sp) * 20}px)` });
+        style(s.row, { opacity: lt < at ? 0 : (active ? 1 : 0.45) });
+      });
+    },
+  },
+
+  result: {
+    build(b, el) {
+      b.d = {};
+      b.d.frame = el.appendChild($(html`<div class="abs frame169" style="left:90px;top:440px"><span class="mono" style="font-size:40px;letter-spacing:.1em">16:9</span></div>`));
+      b.d.arrow = el.appendChild($(html`<svg class="abs" style="left:486px;top:517px" width="92" height="60" viewBox="0 0 92 60" fill="none">
+        <path d="M4 30 H80 M58 8 L82 30 L58 52" style="stroke:var(--cyan-ink)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>`));
+      b.d.phones = Array.from({ length: b.count_to }, (_, i) =>
+        el.appendChild($(html`<div class="abs phone" style="left:${600 + i * 80}px;top:483px;transform-origin:center bottom"><i></i></div>`)));
+      b.d.from = el.appendChild($(html`<div class="abs mask" style="left:90px;top:760px;width:960px;height:170px"><div class="big">${b.from}</div></div>`)).firstElementChild;
+      b.d.to = el.appendChild($(html`<div class="abs mask" style="left:90px;top:930px;width:960px;height:170px"><div class="big" style="color:var(--lime-ink)"><span class="n">0</span> ${b.to.replace(/^\d+\s*/, '')}</div></div>`)).firstElementChild;
+      b.d.n = b.d.to.querySelector('.n');
+      b.d.sub = el.appendChild($(html`<div class="abs" style="left:90px;top:1150px"><span class="chip" style="background:var(--white)">${b.sub}</span></div>`));
+    },
+    render(b, lt) {
+      const fp = E.outBack(prog(lt, 0.1, 0.5));
+      style(b.d.frame, { transform: `scale(${fp})`, opacity: clamp(fp * 3) });
+      b.d.arrow.querySelector('path').setAttribute('stroke-dashoffset', 1 - E.outCubic(prog(lt, 0.7, 0.45)));
+      b.d.phones.forEach((ph, i) => {
+        const p = E.outBack(prog(lt, 1.1 + i * 0.16, 0.4));
+        style(ph, { transform: `translateY(${(1 - p) * 40}px) scale(${p})`, opacity: clamp(p * 3) });
+      });
+      rise(b.d.from, E.outExpo(prog(lt, 0.4, 0.6)));
+      rise(b.d.to, E.outExpo(prog(lt, 1.1, 0.6)));
+      // el numero acompaña a los telefonos que van apareciendo
+      b.d.n.textContent = String(Math.min(b.count_to, Math.max(1, Math.floor((lt - 1.1) / 0.16) + 1)));
+      wipe(b.d.sub, E.outExpo(prog(lt, 2.4, 0.5)));
+    },
+  },
+
+  list: {
+    build(b, el) {
+      b.d = {};
+      b.d.chip = el.appendChild($(html`<div class="abs" style="left:90px;top:330px"><span class="chip">${b.chip}</span></div>`));
+      b.d.items = b.items.map((it, i) => {
+        const row = el.appendChild($(html`<div class="item abs" style="top:${450 + i * 290}px">
+          <div class="check">${raw(CHECK_SVG)}</div>
+          <div style="width:760px"><div class="t">${it.title}</div><div class="s">${it.sub}</div></div></div>`));
+        return { row, check: row.querySelector('.check'), path: row.querySelector('path'), t: row.querySelector('.t'), s: row.querySelector('.s') };
+      });
+    },
+    render(b, lt, dur) {
+      wipe(b.d.chip, E.outExpo(prog(lt, 0.05, 0.45)));
+      const every = (dur - 1.8) / b.items.length;
+      b.d.items.forEach((it, i) => {
+        const at = 0.5 + i * every;
+        const cp = E.outBack(prog(lt, at, 0.4));
+        style(it.check, { transform: `scale(${cp}) rotate(${(1 - cp) * -20}deg)` });
+        it.path.setAttribute('stroke-dashoffset', 1 - E.outCubic(prog(lt, at + 0.2, 0.35)));
+        const tp = E.outExpo(prog(lt, at + 0.1, 0.55));
+        style(it.t, { opacity: tp, transform: `translateX(${(1 - tp) * 50}px)` });
+        const sp = E.outCubic(prog(lt, at + 0.35, 0.5));
+        style(it.s, { opacity: sp });
+      });
+    },
+  },
+
+  tags: {
+    build(b, el) {
+      b.d = {};
+      b.d.chip = el.appendChild($(html`<div class="abs" style="left:90px;top:330px"><span class="chip">${b.chip}</span></div>`));
+      b.d.lines = b.lines.map((l, i) => el.appendChild($(html`<div class="abs mask" style="left:90px;top:${420 + i * 116}px;width:960px;height:116px"><div class="title-xl">${l}</div></div>`)).firstElementChild);
+      const wrap = el.appendChild($(html`<div class="tags abs" style="top:700px"></div>`));
+      b.d.tags = b.tags.map((t, i) => wrap.appendChild($(html`<span class="tag${i === b.accent ? ' accent' : ''}">${t}</span>`)));
+    },
+    render(b, lt) {
+      wipe(b.d.chip, E.outExpo(prog(lt, 0.05, 0.45)));
+      b.d.lines.forEach((l, i) => rise(l, E.outExpo(prog(lt, 0.25 + i * 0.15, 0.6))));
+      b.d.tags.forEach((tg, i) => {
+        const p = prog(lt, 1.1 + i * 0.32, 0.55);
+        style(tg, { transform: `scale(${p > 0 ? E.spring(p) : 0})`, opacity: p > 0 ? 1 : 0 });
+      });
+    },
+  },
+
+  swap: {
+    build(b, el) {
+      b.d = {};
+      b.d.kicker = el.appendChild($(html`<div class="abs kicker" style="left:90px;top:560px">${b.kicker}</div>`));
+      const wrap = el.appendChild($(html`<div class="abs mask" style="left:90px;top:650px;width:960px;height:220px"></div>`));
+      b.d.from = wrap.appendChild($(html`<div class="abs sword" style="left:0;top:0">${b.from}</div>`));
+      b.d.strike = wrap.appendChild($(html`<div class="abs strike" style="left:0;top:100px"></div>`));
+      b.d.to = wrap.appendChild($(html`<div class="abs sword" style="left:0;top:0;color:var(--lime-ink)">${b.to}</div>`));
+      b.d.subMask = el.appendChild($(html`<div class="abs mask" style="left:90px;top:900px;width:960px;height:64px"><div class="abs mono" style="left:0;top:0;font-size:42px;letter-spacing:.06em">${b.sub}</div></div>`));
+      b.d.sub = b.d.subMask.firstElementChild;
+    },
+    render(b, lt) {
+      const kp = E.outExpo(prog(lt, 0.05, 0.6));
+      style(b.d.kicker, { opacity: kp, letterSpacing: `${lerp(0.5, 0.16, kp)}em` });
+      const toAt = 2.0;
+      const fIn = E.outExpo(prog(lt, 0.4, 0.5)), fOut = E.inCubic(prog(lt, toAt, 0.3));
+      style(b.d.from, { transform: `translateY(${(1 - fIn) * 220 + fOut * 220}px)` });
+      style(b.d.strike, { width: `${b.d.from.offsetWidth}px`, transform: `translateY(${fOut * 220}px) scaleX(${E.outExpo(prog(lt, 1.3, 0.35))})` });
+      const tIn = E.outBack(prog(lt, toAt + 0.08, 0.5));
+      style(b.d.to, { transform: `translateY(${(tIn - 1) * 220}px)`, opacity: lt >= toAt ? 1 : 0 });
+      rise(b.d.sub, E.outExpo(prog(lt, 2.6, 0.5)));
+    },
+  },
+
+  end: {
+    build(b, el) {
+      b.d = {};
+      // Adorno de marca: solo si el tema lo pide (la constelacion es de Sintergia).
+      b.d.constel = S.theme?.end_ornament !== 'constellation' ? null : el.appendChild($(html`<svg class="abs" style="left:640px;top:280px" width="360" height="240" viewBox="0 0 360 240" fill="none">
+        <path d="M30 170 L120 60 L210 120 L300 40 M210 120 L260 200" style="stroke:var(--cyan-ink)" stroke-width="3" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+        ${raw([[30,170],[120,60],[210,120],[300,40],[260,200]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="0" style="fill:var(--ink)"/>`).join(''))}</svg>`));
+      b.d.wordmark = el.appendChild($(html`<div class="abs mask" style="left:90px;top:520px;width:900px;height:210px"><div class="abs wordmark" style="left:0;top:0">${b.wordmark}</div></div>`)).firstElementChild;
+      b.d.studio = el.appendChild($(html`<div class="abs mono" style="left:96px;top:740px;font-size:36px;color:var(--cyan-ink)">${b.studio}</div>`));
+      b.d.elines = b.headline.map((l, i) => el.appendChild($(html`<div class="abs mask" style="left:90px;top:${880 + i * 104}px;height:108px;width:960px"><div class="abs eline" style="left:0;top:0;${i === b.headline.length - 1 ? 'color:var(--orange-ink)' : ''}">${l}</div></div>`)).firstElementChild);
+      b.d.cta = el.appendChild($(html`<div class="abs cta" style="left:90px;top:1150px">${b.cta}</div>`));
+      b.d.handle = el.appendChild($(html`<div class="abs mono" style="left:94px;top:1320px;font-size:38px;color:var(--muted)">${b.handle}</div>`));
+    },
+    render(b, lt) {
+      b.d.constel?.querySelector('path').setAttribute('stroke-dashoffset', 1 - E.inOutCubic(prog(lt, 0.35, 0.9)));
+      b.d.constel?.querySelectorAll('circle').forEach((c, i) => c.setAttribute('r', 9 * Math.max(0, E.outBack(prog(lt, 0.35 + i * 0.16, 0.35)))));
+      rise(b.d.wordmark, E.outExpo(prog(lt, 0.15, 0.8)), 105);
+      const sp = E.outExpo(prog(lt, 0.5, 0.9));
+      style(b.d.studio, { opacity: sp, letterSpacing: `${lerp(0.9, 0.5, sp)}em` });
+      b.d.elines.forEach((el, i) => rise(el, E.outExpo(prog(lt, 0.8 + i * 0.12, 0.6))));
+      const cp = prog(lt, 1.3, 0.5);
+      const pulse = 1 + 0.025 * Math.sin(Math.max(0, lt - 1.8) * 6);
+      style(b.d.cta, { opacity: cp > 0 ? 1 : 0, transform: `scale(${cp > 0 ? E.spring(cp) * pulse : 0})` });
+      const hp = E.outCubic(prog(lt, 1.7, 0.5));
+      style(b.d.handle, { opacity: hp, transform: `translateY(${(1 - hp) * 20}px)` });
+    },
+    noExit: true,
+  },
+};
+
+// ---------- construccion ----------
+function build() {
+  const root = document.getElementById('root');
+  G.glowA = root.appendChild($('<div class="abs glow" style="background:radial-gradient(circle, var(--glow1), transparent 62%)"></div>'));
+  G.glowB = root.appendChild($('<div class="abs glow" style="background:radial-gradient(circle, var(--glow2), transparent 62%)"></div>'));
+  G.bg = root.appendChild($('<div id="bg" class="abs"></div>'));
+  G.stage = root.appendChild($('<div class="abs" style="left:0;top:0;width:1080px;height:1920px"></div>'));
+  for (const b of S.scene.beats) {
+    b.el = G.stage.appendChild($('<div class="beat abs"></div>'));
+    BEATS[b.type].build(b, b.el);
+  }
+  G.progressTrack = root.appendChild($('<div id="progress-track" class="abs"></div>'));
+  G.progress = root.appendChild($('<div id="progress" class="abs"></div>'));
+  G.flash = root.appendChild($('<div class="abs" style="left:0;top:0;width:1080px;height:1920px;background:var(--flash);opacity:0"></div>'));
+}
+
+// ---------- render ----------
+function renderAt(t) {
+  // fondo vivo: dos brillos que derivan lento
+  style(G.glowA, { left: `${-300 + 220 * Math.sin(t * 0.21)}px`, top: `${-200 + 260 * Math.cos(t * 0.17)}px` });
+  style(G.glowB, { left: `${380 + 200 * Math.cos(t * 0.19)}px`, top: `${1100 + 240 * Math.sin(t * 0.23)}px` });
+  style(G.bg, { backgroundPosition: `0px ${-(t * 6) % 36}px` });
+
+  for (const b of S.scene.beats) {
+    const vis = t >= b.in && t < b.out;
+    b.el.style.display = vis ? 'block' : 'none';
+    if (!vis) continue;
+    const dur = b.out - b.in, lt = t - b.in;
+    BEATS[b.type].render(b, lt, dur);
+    // salida comun: sube y se desvanece en los ultimos EXIT segundos del beat
+    const out = BEATS[b.type].noExit ? 0 : E.inCubic(prog(lt, dur - EXIT, EXIT));
+    style(b.el, { opacity: 1 - out, transform: `translateY(${-70 * out}px) scale(${1 - 0.04 * out})` });
+  }
+
+  // sacudida + destello en los golpes (sellos)
+  let shakeX = 0, fl = 0;
+  for (const b of S.scene.beats) {
+    if (b.type !== 'tasks') continue;
+    const ts = b.in + 3.9;
+    if (t >= ts && t < ts + 0.45) { const k = t - ts; shakeX += 16 * Math.exp(-k * 9) * Math.sin(k * 70); }
+    if (t >= ts && t < ts + 0.14) fl = 0.18 * (1 - (t - ts) / 0.14);
+  }
+  G.stage.style.transform = `translate(${shakeX}px, ${STAGE_Y}px)`;
+  G.flash.style.opacity = fl;
+
+  // progreso (se apaga al entrar el cierre)
+  const endBeat = S.scene.beats.find(b => b.type === 'end');
+  const endT = endBeat ? endBeat.in : TOTAL;
+  style(G.progress, { width: `${clamp(t / endT) * 1080}px` });
+  const po = 1 - prog(t, endT, 0.25);
+  G.progress.style.opacity = po; G.progressTrack.style.opacity = po;
+}
+
+// Valores admitidos para una variable CSS: color hex, rgb()/color-mix(), nombre o numero.
+// El tema sale de un archivo del repo, no de la escena, pero esto evita que un `}` suelto
+// en themes/*.json pueda cerrar la regla e inyectar CSS arbitrario.
+const SAFE_CSS_VALUE = /^[#A-Za-z0-9(),.%\s-]+$/;
+
+const applyTheme = (theme) => {
+  if (!theme) return;
+  const decl = (obj) => Object.entries(obj || {})
+    .filter(([, v]) => SAFE_CSS_VALUE.test(String(v)))
+    .map(([k, v]) => `--${k.replace(/[^a-z0-9-]/gi, '')}:${v}`)
+    .join(';');
+  // Se agrega al final del <head> para ganarle por cascada al :root de respaldo.
+  const el = document.getElementById('theme-vars') || document.createElement('style');
+  el.id = 'theme-vars';
+  el.textContent = `:root{${decl(theme.palette)}}body[data-theme="light"]{${decl(theme.light)}}`;
+  document.head.appendChild(el);
+};
+
+window.setScene = async (data) => {
+  S = data;
+  TOTAL = S.scene.duration;
+  applyTheme(data.theme);
+  document.body.dataset.theme = S.scene.theme === 'light' ? 'light' : 'dark';
+  await Promise.all([document.fonts.load('900 80px IT'), document.fonts.load('700 30px JB'), document.fonts.load('500 170px FR')]);
+  build();
+  await document.fonts.ready;
+  return true;
+};
+window.renderAt = renderAt;
+</script>
+</body>
+</html>

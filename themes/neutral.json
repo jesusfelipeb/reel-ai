@@ -1,0 +1,31 @@
+{
+  "name": "neutral",
+  "description": "Tema por defecto del proyecto. Sobrio y de alto contraste, pensado para que se vea bien antes de que cambies un solo color. Reemplazalo por el tuyo: ver docs/MARCA.md.",
+
+  "palette": {
+    "navy": "#0B1220",
+    "surface": "#161F2E",
+    "deep": "#0E1724",
+    "white": "#F7F9FC",
+    "muted": "#9AA6B8",
+    "dot": "#22304A",
+    "cyan": "#38BDF8",
+    "lime": "#A3E635",
+    "orange": "#FB923C"
+  },
+
+  "light": {
+    "bg": "#FAFAFA",
+    "muted": "#4B5563",
+    "cyan-ink": "#0369A1",
+    "lime-ink": "#4D7C0F",
+    "orange-ink": "#C2410C"
+  },
+
+  "fonts": {
+    "display": "InterTight-Black.woff",
+    "mono": "JetBrainsMono-Bold.woff",
+    "serif": "Fraunces-Medium.woff",
+    "display_family": "Inter Tight Black"
+  }
+}

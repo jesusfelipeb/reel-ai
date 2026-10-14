@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>videoreel overlay</title>
+<style>
+@font-face { font-family: 'IT'; src: url('../fonts/InterTight-Black.woff') format('woff'); font-weight: 900; }
+@font-face { font-family: 'JB'; src: url('../fonts/JetBrainsMono-Bold.woff') format('woff'); font-weight: 700; }
+@font-face { font-family: 'FR'; src: url('../fonts/Fraunces-Medium.woff') format('woff'); font-weight: 500; }
+/* PALETA — estos valores son el tema "neutral" y actuan solo de respaldo: durante el render
+   los pisa themes/<marca>.json, la misma fuente que lee config/brand.py (ver docs/MARCA.md).
+   Quedan escritos aca para poder abrir este archivo suelto en el navegador mientras se disena. */
+:root {
+  --navy: #0B1220; --surface: #161F2E; --deep: #0E1724;
+  --white: #F7F9FC; --muted: #9AA6B8; --dot: #22304A;
+  --cyan: #38BDF8; --lime: #A3E635; --orange: #FB923C;
+}
+html, body { margin: 0; width: 1080px; height: 1920px; background: transparent; overflow: hidden; }
+body { font-family: 'IT', sans-serif; font-weight: 900; color: var(--white); -webkit-font-smoothing: antialiased; }
+.abs { position: absolute; }
+.mono { font-family: 'JB', monospace; font-weight: 700; }
+.mask { overflow: hidden; }
+.chip { font-family: 'JB', monospace; font-weight: 700; font-size: 30px; letter-spacing: .14em;
+  color: var(--navy); background: var(--cyan); padding: 12px 18px; border-radius: 8px; display: inline-block; }
+
+/* barra de progreso */
+#progress-track { left: 0; top: 0; width: 1080px; height: 10px; background: color-mix(in srgb, var(--white) 18%, transparent); }
+#progress { left: 0; top: 0; height: 10px; width: 0; background: var(--lime); }
+
+/* panel superior (layout dividido) */
+#panel { left: 0; top: 0; width: 1080px; height: 960px; background-color: var(--navy);
+  background-image: radial-gradient(color-mix(in srgb, var(--white) 6%, transparent) 2px, transparent 2px); background-size: 36px 36px;
+  overflow: hidden; }
+#seam { left: 0; width: 1080px; height: 6px; background: var(--cyan); }
+
+/* gancho */
+#hook { left: 90px; top: 250px; width: 900px; }
+#hook .card { margin-top: 18px; background: var(--navy); border-radius: 26px; padding: 30px 36px 34px; display: inline-block; }
+#hook .line { font-size: 86px; line-height: 1.0; letter-spacing: -.01em; white-space: nowrap; }
+#hook .line > span { display: inline-block; }
+
+/* escena: personas */
+#search { left: 90px; top: 250px; width: 900px; height: 100px; border-radius: 50px; background: var(--white);
+  display: flex; align-items: center; gap: 22px; padding: 0 36px; box-sizing: border-box; color: var(--navy); }
+#search .q { font-size: 46px; letter-spacing: -.01em; }
+#search .caret { width: 5px; height: 52px; background: var(--navy); }
+#people-num-wrap { left: 90px; top: 380px; width: 900px; height: 150px; }
+.state { left: 0; top: 0; display: flex; align-items: center; gap: 28px; width: 900px; height: 150px; }
+.state .n { font-size: 140px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.state .l { font-family: 'JB', monospace; font-weight: 700; font-size: 34px; line-height: 1.25; color: var(--muted); letter-spacing: .06em; }
+#grid { left: 107px; top: 568px; width: 866px; height: 206px; }
+.dot { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: var(--dot); }
+
+/* escena: plata */
+#money-chip { left: 90px; top: 250px; }
+.row { left: 90px; display: flex; align-items: baseline; gap: 26px; white-space: nowrap; }
+.row .big { font-size: 124px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.row .lab { font-family: 'JB', monospace; font-weight: 700; font-size: 32px; letter-spacing: .08em; color: var(--muted); }
+#divider { left: 90px; top: 612px; width: 900px; height: 6px; background: color-mix(in srgb, var(--white) 35%, transparent); transform-origin: left center; }
+#total { left: 90px; top: 636px; font-size: 156px; line-height: 1; letter-spacing: -.02em; color: var(--lime);
+  font-variant-numeric: tabular-nums; text-shadow: 0 0 60px color-mix(in srgb, var(--lime) 35%, transparent); white-space: nowrap; }
+#stamp { left: 640px; top: 540px; background: var(--orange); color: var(--navy); font-size: 60px; padding: 14px 26px;
+  border-radius: 12px; transform-origin: center; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
+
+/* escena: cambio de palabra */
+#swap-kicker { left: 90px; top: 280px; font-family: 'JB', monospace; font-weight: 700; font-size: 42px; letter-spacing: .16em; color: var(--cyan); }
+#swap-wrap { left: 90px; top: 372px; width: 900px; height: 170px; }
+#swap-from, #swap-to { left: 0; top: 0; font-size: 146px; line-height: 1.12; letter-spacing: -.02em; white-space: nowrap; }
+#swap-to { color: var(--lime); }
+#strike { left: 0; top: 76px; height: 16px; background: var(--orange); border-radius: 8px; transform-origin: left center; }
+#swap-sub { left: 90px; top: 566px; font-family: 'JB', monospace; font-weight: 700; font-size: 40px; letter-spacing: .1em; }
+
+/* tarjeta de cierre */
+#end { left: 0; top: 0; width: 1080px; height: 1920px; }
+#wordmark { left: 90px; top: 540px; font-family: 'FR', serif; font-weight: 500; font-size: 170px; line-height: 1.1; }
+#studio { left: 96px; top: 740px; font-family: 'JB', monospace; font-weight: 700; font-size: 36px; color: var(--cyan); }
+.eline { font-size: 104px; line-height: 1.0; letter-spacing: -.01em; }
+#cta { left: 90px; top: 1150px; background: var(--lime); color: var(--navy); font-size: 50px; padding: 34px 44px;
+  border-radius: 26px; transform-origin: left center; white-space: nowrap; }
+#handle { left: 94px; top: 1320px; font-family: 'JB', monospace; font-weight: 700; font-size: 38px; color: var(--muted); }
+
+/* subtitulos */
+.cap { left: 60px; width: 960px; display: flex; flex-wrap: wrap; justify-content: center; column-gap: 6px; row-gap: 4px; }
+.w { position: relative; z-index: 1; display: inline-block; font-size: 80px; line-height: 1.08; padding: 2px 16px 6px;
+  color: var(--white); -webkit-text-stroke: 12px var(--navy); paint-order: stroke fill; text-transform: uppercase;
+  text-shadow: 0 8px 22px rgba(0,0,0,.35); white-space: nowrap; }
+.w.on { color: var(--navy); -webkit-text-stroke: 0; text-shadow: none; }
+.pill { position: absolute; z-index: 0; background: var(--lime); border-radius: 18px; }
+
+#flash { left: 0; top: 0; width: 1080px; height: 1920px; background: #fff; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ---------- utilidades de animacion (todo es funcion pura del tiempo t) ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, t0, d) => clamp((t - t0) / d);
+const lerp = (a, b, x) => a + (b - a) * x;
+const E = {
+  linear: x => x,
+  outCubic: x => 1 - Math.pow(1 - x, 3),
+  inCubic: x => x * x * x,
+  outExpo: x => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+  inOutCubic: x => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  spring: x => (x >= 1 ? 1 : 1 - Math.exp(-6 * x) * Math.cos(9 * x)),
+};
+const $ = (markup) => { const d = document.createElement('div'); d.innerHTML = markup.trim(); return d.firstChild; };
+
+// El texto de la escena (y de la transcripcion) es dato NO confiable: lo genera un LLM o
+// llega compartido por un tercero, y termina en innerHTML. Sin escapar, un campo como
+// `chip` puede traer <img src=x onerror=...> y ejecutar JS en el renderer. La etiqueta
+// `html` escapa todo lo interpolado; lo que de verdad es marcado se marca con raw().
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ESC[c]);
+const raw = (s) => ({ __html: String(s) });
+const html = (strings, ...vals) =>
+  strings[0] + vals.map((v, i) => (v && v.__html !== undefined ? v.__html : esc(v)) + strings[i + 1]).join('');
+const style = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const fmtThousands = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const PANEL_MOVE = 0.45;
+
+let S = null;      // escena + palabras
+let D = {};        // referencias DOM
+let TOTAL = 0;     // duracion del fragmento (sin la tarjeta de cierre)
+
+// ---------- agrupacion de subtitulos (mismas reglas que utils/subtitles.py) ----------
+function groupWords(words) {
+  const groups = []; let cur = [];
+  for (const w of words) {
+    if (cur.length) {
+      const len = cur.concat([w]).map(x => x.text).join(' ').length;
+      const pause = w.start - cur[cur.length - 1].end;
+      if (cur.length >= 4 || len > 18 || pause > 0.35 || /[.,;:?!…]$/.test(cur[cur.length - 1].text)) {
+        groups.push(cur); cur = [];
+      }
+    }
+    cur.push(w);
+  }
+  if (cur.length) groups.push(cur);
+  return groups;
+}
+
+// ---------- construccion del DOM ----------
+function build() {
+  const root = document.getElementById('root');
+  const s = S.scene;
+
+  D.progressTrack = root.appendChild($('<div id="progress-track" class="abs"></div>'));
+  D.progress = root.appendChild($('<div id="progress" class="abs"></div>'));
+
+  // gancho
+  const h = s.hook;
+  D.hook = root.appendChild($(html`<div id="hook" class="abs">
+    <div class="mask" style="display:inline-block"><span class="chip">${h.chip}</span></div><br>
+    <div class="card">${raw(h.lines.map((l, i) => html`<div class="line mask"><span style="color:${i === h.accent_line ? 'var(--lime)' : 'inherit'}">${l}</span></div>`).join(''))}</div>
+  </div>`));
+  D.hookChip = D.hook.querySelector('.chip');
+  D.hookChipMask = D.hook.querySelector('.mask');
+  D.hookCard = D.hook.querySelector('.card');
+  D.hookLines = [...D.hook.querySelectorAll('.line > span')];
+
+  // panel dividido
+  D.panel = root.appendChild($('<div id="panel" class="abs"></div>'));
+  D.seam = root.appendChild($('<div id="seam" class="abs"></div>'));
+
+  // escena personas
+  const p = s.people;
+  D.people = D.panel.appendChild($('<div class="abs" style="left:0;top:0;width:1080px;height:960px"></div>'));
+  D.search = D.people.appendChild($(html`<div id="search" class="abs">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" style="stroke:var(--navy)" stroke-width="3" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    <span class="q"></span><span class="caret"></span></div>`));
+  D.searchQ = D.search.querySelector('.q'); D.caret = D.search.querySelector('.caret');
+  D.peopleNum = D.people.appendChild($('<div id="people-num-wrap" class="abs mask"></div>'));
+  D.states = p.states.map(st => D.peopleNum.appendChild($(html`<div class="state abs">
+    <span class="n" style="color:${st.accent ? 'var(--lime)' : 'var(--white)'}">${st.number}</span><span class="l">${st.label}</span></div>`)));
+  D.grid = D.people.appendChild($('<div id="grid" class="abs"></div>'));
+  D.dots = [];
+  for (let i = 0; i < 100; i++) {
+    const col = i % 20, row = Math.floor(i / 20);
+    const d = D.grid.appendChild($('<div class="dot"></div>'));
+    style(d, { left: `${col * 44}px`, top: `${row * 44}px` });
+    D.dots.push({ el: d, col, row, hi: p.highlight.indexOf(i) });
+  }
+
+  // escena plata
+  const m = s.money;
+  D.money = D.panel.appendChild($('<div class="abs" style="left:0;top:0;width:1080px;height:960px"></div>'));
+  D.moneyChipMask = D.money.appendChild($(html`<div id="money-chip" class="abs mask"><span class="chip">${m.chip}</span></div>`));
+  D.row1 = D.money.appendChild($(html`<div class="row abs mask" style="top:318px;height:140px;width:900px"></div>`));
+  D.ghost = D.row1.appendChild($(html`<div class="abs" style="left:0;top:0;display:flex;align-items:baseline;gap:26px"><span class="big" style="color:color-mix(in srgb, var(--white) 28%, transparent)">$ ¿?</span><span class="lab">POR CONSULTA</span></div>`));
+  D.price = D.row1.appendChild($(html`<div class="abs" style="left:0;top:0;display:flex;align-items:baseline;gap:26px"><span class="big">${m.price}</span><span class="lab">${m.price_label}</span></div>`));
+  D.row2 = D.money.appendChild($(html`<div class="row abs" style="top:462px"><span class="big" style="color:var(--lime)">${m.times}</span><span class="lab">${m.times_label}</span></div>`));
+  D.row2Big = D.row2.querySelector('.big'); D.row2Lab = D.row2.querySelector('.lab');
+  D.divider = D.money.appendChild($('<div id="divider" class="abs"></div>'));
+  D.total = D.money.appendChild($('<div id="total" class="abs"></div>'));
+  D.stamp = D.money.appendChild($(html`<div id="stamp" class="abs">${m.stamp}</div>`));
+
+  // escena cambio de palabra
+  const w = s.swap;
+  D.swap = D.panel.appendChild($('<div class="abs" style="left:0;top:0;width:1080px;height:960px"></div>'));
+  D.swapKicker = D.swap.appendChild($(html`<div id="swap-kicker" class="abs">${w.kicker}</div>`));
+  D.swapWrap = D.swap.appendChild($('<div id="swap-wrap" class="abs mask"></div>'));
+  D.swapFrom = D.swapWrap.appendChild($(html`<div id="swap-from" class="abs">${w.from}</div>`));
+  D.strike = D.swapWrap.appendChild($('<div id="strike" class="abs"></div>'));
+  D.swapTo = D.swapWrap.appendChild($(html`<div id="swap-to" class="abs">${w.to}</div>`));
+  D.swapSubMask = D.swap.appendChild($(html`<div class="abs mask" style="left:90px;top:566px;width:900px;height:60px"><div id="swap-sub" class="abs" style="left:0;top:0">${w.sub}</div></div>`));
+  D.swapSub = D.swapSubMask.firstChild;
+
+  // tarjeta de cierre (va dentro del panel, que crece a pantalla completa)
+  const e = s.end_card;
+  D.end = D.panel.appendChild($('<div id="end" class="abs"></div>'));
+  D.constel = D.end.appendChild($(html`<svg class="abs" style="left:640px;top:250px" width="360" height="240" viewBox="0 0 360 240" fill="none">
+    <path d="M30 170 L120 60 L210 120 L300 40 M210 120 L260 200" style="stroke:var(--cyan)" stroke-width="3" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+    ${raw([[30,170],[120,60],[210,120],[300,40],[260,200]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="9" style="fill:var(--white)"/>`).join(''))}</svg>`));
+  D.constelPath = D.constel.querySelector('path'); D.constelDots = [...D.constel.querySelectorAll('circle')];
+  D.wordmarkMask = D.end.appendChild($(html`<div class="abs mask" style="left:90px;top:520px;width:900px;height:210px"><div id="wordmark" class="abs" style="left:0;top:0">${e.wordmark}</div></div>`));
+  D.wordmark = D.wordmarkMask.firstChild;
+  D.studio = D.end.appendChild($(html`<div id="studio" class="abs">${e.studio}</div>`));
+  D.elines = e.headline.map((l, i) => D.end.appendChild($(html`<div class="abs mask" style="left:90px;top:${880 + i * 108}px;height:112px;width:900px"><div class="eline abs" style="left:0;top:0;${i === e.headline.length - 1 ? 'color:var(--orange)' : ''}">${l}</div></div>`)).firstChild);
+  D.cta = D.end.appendChild($(html`<div id="cta" class="abs">${e.cta}</div>`));
+  D.handle = D.end.appendChild($(html`<div id="handle" class="abs">${e.handle}</div>`));
+
+  // subtitulos: cada grupo se mide una sola vez para posicionar la pastilla
+  D.caps = S.groups.map(g => {
+    const el = root.appendChild($('<div class="cap abs"></div>'));
+    const pill = el.appendChild($('<div class="pill"></div>'));
+    const spans = g.map(wd => el.appendChild($(html`<span class="w">${wd.text}</span>`)));
+    return { el, pill, spans, words: g };
+  });
+  D.flash = root.appendChild($('<div id="flash" class="abs"></div>'));
+}
+
+function measure() {
+  for (const c of D.caps) {
+    c.h = c.el.offsetHeight;
+    c.rects = c.spans.map(sp => ({ x: sp.offsetLeft, y: sp.offsetTop, w: sp.offsetWidth, h: sp.offsetHeight }));
+  }
+  D.swapFromWidth = D.swapFrom.offsetWidth;
+}
+
+// ---------- estado del panel ----------
+function panelCover(t) {
+  // 0 = sin panel (layout completo), 1 = panel cubriendo la mitad superior
+  for (const [a, b] of S.scene.split_windows) {
+    if (t >= a && t < a + PANEL_MOVE) return E.inOutCubic(prog(t, a, PANEL_MOVE));
+    if (t >= a + PANEL_MOVE && t < b) return 1;
+    if (t >= b && t < b + PANEL_MOVE && b < TOTAL - 0.01) return 1 - E.inOutCubic(prog(t, b, PANEL_MOVE));
+  }
+  if (t >= TOTAL) return 1;
+  return 0;
+}
+
+// ---------- render ----------
+function renderAt(t) {
+  const s = S.scene;
+  const endT = TOTAL;
+  const inEnd = t >= endT;
+
+  // progreso
+  style(D.progress, { width: `${clamp(t / endT) * 1080}px` });
+  const progOut = 1 - prog(t, endT, 0.25);
+  style(D.progress, { opacity: progOut }); style(D.progressTrack, { opacity: progOut });
+
+  // panel: se desliza desde arriba; en el cierre crece a pantalla completa
+  const cover = panelCover(t);
+  const grow = E.inOutCubic(prog(t, endT, 0.55));
+  const panelH = lerp(960, 1920, grow);
+  const panelY = -panelH * (1 - cover);
+  style(D.panel, { height: `${panelH}px`, transform: `translateY(${panelY}px)`, display: cover > 0 ? 'block' : 'none' });
+  style(D.seam, { top: `${panelY + panelH - 3}px`, display: cover > 0 && grow < 1 ? 'block' : 'none' });
+
+  // shake al golpe del sello (desplaza el contenido del panel)
+  let shakeX = 0;
+  for (const ts of s.shake_at) {
+    if (t >= ts && t < ts + 0.45) { const k = t - ts; shakeX += 16 * Math.exp(-k * 9) * Math.sin(k * 70); }
+  }
+
+  renderHook(t);
+  renderPeople(t, shakeX);
+  renderMoney(t, shakeX);
+  renderSwap(t);
+  renderEnd(t);
+  renderCaptions(t, cover, inEnd);
+
+  // destello breve en el golpe
+  let fl = 0;
+  for (const ts of s.shake_at) if (t >= ts && t < ts + 0.14) fl = 0.22 * (1 - (t - ts) / 0.14);
+  style(D.flash, { opacity: fl });
+}
+
+function renderHook(t) {
+  const h = S.scene.hook;
+  if (t > h.out + 0.4) { D.hook.style.display = 'none'; return; }
+  D.hook.style.display = 'block';
+  const chipP = E.outExpo(prog(t, 0.08, 0.45));
+  style(D.hookChipMask, { clipPath: `inset(0 ${100 - chipP * 100}% 0 0)` });
+  const cardP = E.outExpo(prog(t, 0.12, 0.5));
+  style(D.hookCard, { clipPath: `inset(0 0 ${100 - cardP * 100}% 0 round 26px)` });
+  D.hookLines.forEach((el, i) => {
+    const lp = E.outExpo(prog(t, 0.2 + i * 0.08, 0.6));
+    style(el, { transform: `translateY(${(1 - lp) * 110}%)` });
+  });
+  const out = E.inCubic(prog(t, h.out, 0.35));
+  style(D.hook, { opacity: 1 - out, transform: `translateY(${-60 * out}px) scale(${1 - 0.04 * out})` });
+}
+
+function renderPeople(t, shakeX) {
+  const p = S.scene.people;
+  const vis = t >= p.in - 0.1 && t < p.out + 0.5;
+  D.people.style.display = vis ? 'block' : 'none';
+  if (!vis) return;
+
+  const out = E.inCubic(prog(t, p.out, 0.4));
+  style(D.people, { opacity: 1 - out, transform: `translate(${shakeX}px, ${-40 * out}px) scale(${1 - 0.05 * out})` });
+
+  // buscador: cae desde arriba y tipea la consulta
+  const sp = E.outExpo(prog(t, p.in, 0.55));
+  style(D.search, { opacity: sp, transform: `translateY(${(1 - sp) * -40}px)` });
+  const n = Math.round(p.query.length * prog(t, p.type_from, p.type_to - p.type_from));
+  D.searchQ.textContent = p.query.slice(0, n);
+  const typing = t >= p.type_from && t <= p.type_to + 0.1;
+  D.caret.style.opacity = typing || Math.floor(t * 2.4) % 2 === 0 ? 1 : 0;
+
+  // numero + etiqueta: cambian de estado con efecto de rodillo
+  const states = p.states;
+  let cur = 0;
+  states.forEach((st, i) => { if (t >= st.at) cur = i; });
+  D.states.forEach((el, i) => {
+    const st = states[i];
+    const inP = i === 0 ? E.outExpo(prog(t, st.at, 0.5)) : E.outBack(prog(t, st.at, 0.45));
+    const next = states[i + 1];
+    const outP = next ? E.inCubic(prog(t, next.at, 0.25)) : 0;
+    const y = (1 - inP) * 150 - outP * 150;
+    style(el, { transform: `translateY(${y}px)`, opacity: i <= cur + 1 ? 1 : 0 });
+    if (i === 0) {
+      const count = Math.round(p.count_to * E.outCubic(prog(t, st.at, 1.2)));
+      el.querySelector('.n').textContent = String(count);
+    }
+  });
+
+  // grilla de 100 personas: entra en ola diagonal; 10 se encienden en lima
+  const hiT = p.highlight_at;
+  D.dots.forEach(d => {
+    const delay = p.in + 0.05 + d.col * 0.018 + d.row * 0.05;
+    const ap = E.outBack(prog(t, delay, 0.32));
+    let bg = 'var(--dot)', sc = ap, op = ap, shadow = 'none';
+    if (t >= hiT) {
+      if (d.hi >= 0) {
+        const hp = prog(t, hiT + d.hi * 0.06, 0.4);
+        if (hp > 0) {
+          bg = 'var(--lime)';
+          sc = 1 + 0.45 * Math.sin(Math.PI * clamp(hp * 1.2));
+          const ring = prog(t, hiT + d.hi * 0.06, 0.7);
+          shadow = `0 0 0 ${ring * 22}px color-mix(in srgb, var(--lime) ${45 * (1 - ring)}%, transparent)`;
+        }
+      } else {
+        op = lerp(1, 0.35, E.outCubic(prog(t, hiT, 0.5)));
+      }
+    }
+    style(d.el, { transform: `scale(${sc})`, opacity: op, background: bg, boxShadow: shadow });
+  });
+}
+
+function renderMoney(t, shakeX) {
+  const m = S.scene.money;
+  // la escena sale con el panel (fin de su ventana dividida)
+  const vis = t >= m.in - 0.05 && t < m.out + PANEL_MOVE;
+  D.money.style.display = vis ? 'block' : 'none';
+  if (!vis) return;
+  style(D.money, { transform: `translateX(${shakeX}px)` });
+
+  const cp = E.outExpo(prog(t, m.in, 0.5));
+  style(D.moneyChipMask, { clipPath: `inset(0 ${100 - cp * 100}% 0 0)` });
+
+  // fila 1: fantasma "$ ¿?" y luego el precio real con efecto rodillo
+  const gIn = E.outExpo(prog(t, m.ghost_at, 0.45));
+  const gOut = E.inCubic(prog(t, m.price_at, 0.22));
+  style(D.ghost, { opacity: gIn * (1 - gOut), transform: `translateY(${(1 - gIn) * 60 - gOut * 140}px)` });
+  const pIn = E.outBack(prog(t, m.price_at + 0.05, 0.45));
+  style(D.price, { opacity: pIn > 0 ? 1 : 0, transform: `translateY(${(1 - pIn) * 140}px)` });
+
+  // fila 2: "x 10" con resorte
+  const tp = prog(t, m.times_at, 0.6);
+  style(D.row2Big, { transform: `scale(${tp > 0 ? E.spring(tp) : 0})`, display: 'inline-block', transformOrigin: 'left center' });
+  const tl = E.outExpo(prog(t, m.times_at + 0.15, 0.4));
+  style(D.row2Lab, { opacity: tl, transform: `translateX(${(1 - tl) * -30}px)`, display: 'inline-block' });
+
+  // linea divisoria + total que sube
+  style(D.divider, { transform: `scaleX(${E.outExpo(prog(t, m.total_at - 0.4, 0.45))})` });
+  const tt = prog(t, m.total_at, 1.25);
+  D.total.textContent = tt > 0 ? '$' + fmtThousands(m.total * E.outExpo(tt)) : '';
+  style(D.total, { transform: `scale(${1 + 0.04 * Math.sin(Math.PI * clamp(tt * 1.4))})`, transformOrigin: 'left center' });
+
+  // sello: golpe desde grande y rotado
+  const st = prog(t, m.stamp_at, 0.16);
+  const scale = st >= 1 ? 1 : lerp(2.4, 1, E.inCubic(st));
+  const settle = st >= 1 ? 1 + 0.06 * Math.exp(-(t - m.stamp_at - 0.16) * 14) * Math.cos((t - m.stamp_at) * 40) : scale;
+  style(D.stamp, { opacity: t >= m.stamp_at ? 1 : 0, transform: `rotate(-8deg) scale(${settle})` });
+}
+
+function renderSwap(t) {
+  const w = S.scene.swap;
+  const vis = t >= w.kicker_at - 0.05 && t < TOTAL + 0.4;
+  D.swap.style.display = vis ? 'block' : 'none';
+  if (!vis) return;
+  style(D.swap, { opacity: 1 - prog(t, TOTAL, 0.25) });
+
+  const kp = E.outExpo(prog(t, w.kicker_at, 0.6));
+  style(D.swapKicker, { opacity: kp, letterSpacing: `${lerp(0.5, 0.16, kp)}em` });
+
+  const fIn = E.outExpo(prog(t, w.from_at, 0.5));
+  const fOut = E.inCubic(prog(t, w.to_at, 0.3));
+  style(D.swapFrom, { transform: `translateY(${(1 - fIn) * 170 + fOut * 170}px)` });
+  const sk = E.outExpo(prog(t, w.strike_at, 0.35));
+  style(D.strike, { width: `${D.swapFromWidth}px`, transform: `translateY(${fOut * 170}px) scaleX(${sk})` });
+  const tIn = E.outBack(prog(t, w.to_at + 0.08, 0.5));
+  style(D.swapTo, { transform: `translateY(${(tIn - 1) * 170}px)`, opacity: t >= w.to_at ? 1 : 0 });
+
+  const sp = E.outExpo(prog(t, w.sub_at, 0.5));
+  style(D.swapSub, { transform: `translateY(${(1 - sp) * 60}px)` });
+}
+
+function renderEnd(t) {
+  const on = t >= TOTAL;
+  D.end.style.display = on ? 'block' : 'none';
+  if (!on) return;
+  const e0 = TOTAL;
+  const dash = 1 - E.inOutCubic(prog(t, e0 + 0.35, 0.9));
+  D.constelPath.setAttribute('stroke-dashoffset', dash);
+  D.constelDots.forEach((c, i) => {
+    const cp = E.outBack(prog(t, e0 + 0.35 + i * 0.16, 0.35));
+    c.setAttribute('r', 9 * cp);
+  });
+  const wp = E.outExpo(prog(t, e0 + 0.4, 0.8));
+  style(D.wordmark, { transform: `translateY(${(1 - wp) * 105}%)` });
+  const sp = E.outExpo(prog(t, e0 + 0.7, 0.9));
+  style(D.studio, { opacity: sp, letterSpacing: `${lerp(0.9, 0.5, sp)}em` });
+  D.elines.forEach((el, i) => {
+    const lp = E.outExpo(prog(t, e0 + 0.95 + i * 0.1, 0.6));
+    style(el, { transform: `translateY(${(1 - lp) * 110}%)` });
+  });
+  const cp = prog(t, e0 + 1.35, 0.5);
+  const pulse = 1 + 0.025 * Math.sin(Math.max(0, t - e0 - 1.85) * 6);
+  style(D.cta, { opacity: cp > 0 ? 1 : 0, transform: `scale(${cp > 0 ? E.spring(cp) * pulse : 0})` });
+  const hp = E.outCubic(prog(t, e0 + 1.7, 0.5));
+  style(D.handle, { opacity: hp, transform: `translateY(${(1 - hp) * 20}px)` });
+}
+
+function renderCaptions(t, cover, inEnd) {
+  const yFull = 1290, ySplit = 872;
+  const cy = lerp(yFull, ySplit, cover);
+  const hide = E.outCubic(prog(t, TOTAL - 0.05, 0.15));
+  D.caps.forEach((c, gi) => {
+    const first = c.words[0].start;
+    const nextFirst = gi + 1 < D.caps.length ? D.caps[gi + 1].words[0].start : Infinity;
+    const lastEnd = c.words[c.words.length - 1].end;
+    const until = Math.min(nextFirst, lastEnd + 0.6);
+    const vis = t >= first - 0.02 && t < until && !inEnd;
+    c.el.style.display = vis ? 'flex' : 'none';
+    if (!vis) return;
+    style(c.el, { top: `${cy - c.h / 2}px`, opacity: 1 - hide });
+
+    let active = -1;
+    c.words.forEach((wd, i) => { if (t >= wd.start) active = i; });
+    c.spans.forEach((sp, i) => {
+      const wd = c.words[i];
+      const pp = prog(t, wd.start, 0.22);
+      const sc = pp > 0 ? lerp(0.6, 1, E.outBack(pp)) : 0.6;
+      const lift = (1 - E.outCubic(pp)) * 18;
+      style(sp, { opacity: pp > 0 ? clamp(pp * 4) : 0, transform: `translateY(${lift}px) scale(${sc})` });
+      sp.classList.toggle('on', i === active);
+    });
+
+    // pastilla lima que se desliza de palabra en palabra
+    if (active < 0) { c.pill.style.opacity = 0; return; }
+    const r = c.rects[active];
+    const since = t - c.words[active].start;
+    let x = r.x, y = r.y, w = r.w, h = r.h, sc = 1;
+    if (active > 0 && since < 0.14) {
+      const k = E.outCubic(since / 0.14), q = c.rects[active - 1];
+      x = lerp(q.x, r.x, k); y = lerp(q.y, r.y, k); w = lerp(q.w, r.w, k); h = lerp(q.h, r.h, k);
+    } else if (active === 0) {
+      sc = E.outBack(clamp(since / 0.2));
+    }
+    style(c.pill, { opacity: 1, left: `${x}px`, top: `${y + 4}px`, width: `${w}px`, height: `${h - 6}px`, transform: `scale(${sc}) rotate(-1.5deg)` });
+  });
+}
+
+// ---------- API usada por el renderer ----------
+// Valores admitidos para una variable CSS: color hex, rgb()/color-mix(), nombre o numero.
+// El tema sale de un archivo del repo, no de la escena, pero esto evita que un `}` suelto
+// en themes/*.json pueda cerrar la regla e inyectar CSS arbitrario.
+const SAFE_CSS_VALUE = /^[#A-Za-z0-9(),.%\s-]+$/;
+
+const applyTheme = (theme) => {
+  if (!theme) return;
+  const decl = Object.entries(theme.palette || {})
+    .filter(([, v]) => SAFE_CSS_VALUE.test(String(v)))
+    .map(([k, v]) => `--${k.replace(/[^a-z0-9-]/gi, '')}:${v}`)
+    .join(';');
+  // Se agrega al final del <head> para ganarle por cascada al :root de respaldo.
+  const el = document.getElementById('theme-vars') || document.createElement('style');
+  el.id = 'theme-vars';
+  el.textContent = `:root{${decl}}`;
+  document.head.appendChild(el);
+};
+
+window.setScene = async (data) => {
+  S = data;
+  applyTheme(data.theme);
+  S.groups = groupWords(S.words);
+  TOTAL = S.scene.end - S.scene.start;
+  await Promise.all([
+    document.fonts.load('900 80px IT'), document.fonts.load('700 30px JB'), document.fonts.load('500 170px FR'),
+  ]);
+  build();
+  await document.fonts.ready;
+  measure();
+  return true;
+};
+window.renderAt = renderAt;
+</script>
+</body>
+</html>

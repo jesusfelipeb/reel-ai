@@ -1,0 +1,5 @@
+# El SDK de OpenAI habla con cualquier API compatible (Groq, OpenAI, OpenRouter, Ollama...).
+# Se usa como cliente generico, no implica usar los modelos de OpenAI. Ver docs/PROVEEDORES.md
+openai==1.109.1
+python-dotenv==1.0.1
+Pillow==11.3.0

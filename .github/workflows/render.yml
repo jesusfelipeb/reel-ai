@@ -1,0 +1,117 @@
+name: Renderizar escena
+
+# Renderiza un video sin que haga falta instalar nada en tu maquina.
+#
+#   - Desde la pestaña Actions: "Run workflow" y elegis que escena.
+#   - Automatico: cuando subis o editas un JSON en motion/scenes/.
+#
+# El video queda como artefacto del run, listo para descargar.
+# NO necesita ninguna clave de API: el pipeline de texto animado no usa IA.
+
+on:
+  workflow_dispatch:
+    inputs:
+      escena:
+        description: "Ruta de la escena (ej. examples/ia-hogar.json)"
+        required: true
+        default: examples/diagnostico-gratis-reel-test.json
+  push:
+    paths:
+      - "motion/scenes/**.json"
+      - "escenas/**.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # Chromium pesa ~400 MB: sin cache, cada corrida lo baja de nuevo.
+      - name: Cachear Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          npm ci
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update && sudo apt-get install -y ffmpeg
+          fi
+
+      - name: Revisar el entorno
+        run: python scripts/doctor.py
+
+      # La entrada del usuario va por variable de entorno, nunca interpolada en el shell:
+      # un ${{ }} dentro de `run` se expande antes de que bash lo vea y permite inyeccion.
+      - name: Elegir que renderizar
+        id: elegir
+        env:
+          ESCENA: ${{ inputs.escena }}
+          EVENTO: ${{ github.event_name }}
+        run: |
+          if [ "$EVENTO" = "workflow_dispatch" ]; then
+            case "$ESCENA" in
+              *..*|/*) echo "::error::La ruta '$ESCENA' no es valida."; exit 1 ;;
+            esac
+            if [ ! -f "$ESCENA" ]; then
+              echo "::error::No existe '$ESCENA'."; exit 1
+            fi
+            printf 'lista<<EOF\n%s\nEOF\n' "$ESCENA" >> "$GITHUB_OUTPUT"
+          else
+            # Con pipefail (el default de Actions), un find sobre una carpeta que no existe tumba el paso.
+            archivos=$( { find motion/scenes escenas -name '*.json' -type f 2>/dev/null || true; } | sort)
+            if [ -z "$archivos" ]; then
+              echo "::notice::No hay escenas en motion/scenes/ ni en escenas/. Nada que renderizar."
+              echo "vacio=1" >> "$GITHUB_OUTPUT"
+            fi
+            printf 'lista<<EOF\n%s\nEOF\n' "$archivos" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validar la escena
+        if: steps.elegir.outputs.vacio != '1'
+        env:
+          LISTA: ${{ steps.elegir.outputs.lista }}
+        run: |
+          printf '%s\n' "$LISTA" | while read -r f; do
+            [ -n "$f" ] && python scripts/validate_scene.py "$f"
+          done
+
+      - name: Renderizar
+        if: steps.elegir.outputs.vacio != '1'
+        env:
+          LISTA: ${{ steps.elegir.outputs.lista }}
+        run: |
+          printf '%s\n' "$LISTA" | while read -r f; do
+            [ -n "$f" ] && python -m motion.compose_text "$f"
+          done
+
+      - name: Publicar el video
+        if: steps.elegir.outputs.vacio != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: video
+          path: output/motion/*.mp4
+          retention-days: 14
+          if-no-files-found: error

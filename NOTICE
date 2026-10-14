@@ -1,0 +1,55 @@
+# NOTICE — componentes de terceros
+
+El código de reel-ai es MIT (ver `LICENSE`). Lo que sigue **no** lo cubre esa licencia.
+
+## Tipografías incluidas en `fonts/`
+
+Las tres se distribuyen bajo la **SIL Open Font License 1.1** (OFL). La OFL permite
+redistribuirlas junto con el proyecto, pero exige que el texto de la licencia viaje con
+ellas y prohíbe venderlas por separado.
+
+El texto completo de la licencia de cada una está en `fonts/`, junto al archivo de fuente,
+como exige la OFL. Los avisos de copyright de abajo están copiados textualmente de esos
+archivos, no reconstruidos.
+
+| Archivo | Tipografía | Aviso de copyright | Texto de la licencia |
+|---|---|---|---|
+| `InterTight-Black.woff` | Inter Tight | Copyright 2022 The Inter Project Authors<br>https://github.com/rsms/inter-tight | [`fonts/OFL-InterTight.txt`](fonts/OFL-InterTight.txt) |
+| `JetBrainsMono-Bold.woff` | JetBrains Mono | Copyright 2020 The JetBrains Mono Project Authors<br>https://github.com/JetBrains/JetBrainsMono | [`fonts/OFL-JetBrainsMono.txt`](fonts/OFL-JetBrainsMono.txt) |
+| `Fraunces-Medium.woff` | Fraunces | Copyright 2018 The Fraunces Project Authors<br>https://github.com/undercasetype/Fraunces | [`fonts/OFL-Fraunces.txt`](fonts/OFL-Fraunces.txt) |
+
+Los `.woff` provienen de los paquetes de Fontsource.
+
+> **Ojo si reemplazás Inter Tight por Inter.** Son familias distintas y con avisos distintos:
+> Inter Tight es «Copyright 2022 … rsms/inter-tight» e Inter es «Copyright (c) 2016 …
+> rsms/inter». Si cambiás la fuente, cambiá también el archivo de licencia.
+
+**Qué permite la OFL 1.1**, en resumen (el texto completo manda): podés usar, estudiar,
+modificar y redistribuir estas tipografías, incluso dentro de software comercial. Lo que no
+podés es venderlas por separado, y si redistribuís una versión modificada no puede llevar el
+mismo nombre reservado. El texto de la licencia tiene que acompañarlas siempre — por eso
+estos tres archivos no se borran.
+
+## Dependencias
+
+Se instalan por gestor de paquetes, no se redistribuyen acá. Cada una conserva su licencia:
+
+- **Python** (`requirements.txt`): `openai` (como cliente genérico), `python-dotenv`, `Pillow`
+- **Node** (`package.json`): `playwright` (Apache-2.0)
+- **FFmpeg**: dependencia del sistema, no se incluye. Según cómo esté compilado puede ser
+  LGPL-2.1+ o GPL-2.0+ — relevante solo si alguien redistribuye un binario junto al proyecto.
+
+## Material de ejemplo
+
+`examples/primer-video.json` es de dominio público (CC0): copiala y cambiala sin pedir
+permiso. Es la que copia `reel init` y la que conviene usar como punto de partida.
+
+El resto de las escenas de `examples/` y las referencias a Sintergia Studio son material comercial de su
+autor. El código es libre de usar; la marca, el nombre y los textos de esas escenas no.
+Sirven como ejemplo de uso, no como plantilla para reutilizar tal cual.
+
+## Trabajos relacionados
+
+El pack de skills `ig-*` (análisis de ganchos y guiones para Instagram) es un proyecto
+separado y de terceros: https://github.com/Jakeschincariol/instagram-agent-skill — no está
+incluido ni vendorizado en este repositorio.

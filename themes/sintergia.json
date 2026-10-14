@@ -1,0 +1,33 @@
+{
+  "name": "sintergia",
+  "description": "Marca real de Sintergia Studio. Esta aca como ejemplo de un tema completo en produccion, no como plantilla para copiar: el codigo es libre, la marca no (ver NOTICE).",
+
+  "end_ornament": "constellation",
+
+  "palette": {
+    "navy": "#040b16",
+    "surface": "#0F1830",
+    "deep": "#0a1526",
+    "white": "#F8FAFC",
+    "muted": "#94a3b8",
+    "dot": "#1d3354",
+    "cyan": "#00b4d8",
+    "lime": "#C7F94A",
+    "orange": "#FF8A3D"
+  },
+
+  "light": {
+    "bg": "#FAFAF7",
+    "muted": "#475569",
+    "cyan-ink": "#047A96",
+    "lime-ink": "#5C8A14",
+    "orange-ink": "#C2540A"
+  },
+
+  "fonts": {
+    "display": "InterTight-Black.woff",
+    "mono": "JetBrainsMono-Bold.woff",
+    "serif": "Fraunces-Medium.woff",
+    "display_family": "Inter Tight Black"
+  }
+}

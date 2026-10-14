@@ -1,0 +1,16 @@
+# Lo que no entra en la imagen: entornos locales, salidas, secretos y material privado.
+.git
+.github
+venv
+node_modules
+__pycache__
+*.pyc
+.env
+.tmp
+output
+input
+largos
+curso
+docs/img
+CLAUDE.local.md
+.cursorrules

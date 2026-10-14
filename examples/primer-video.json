@@ -1,0 +1,37 @@
+{
+  "name": "primer-video",
+  "brand": "neutral",
+  "duration": 29.6,
+  "beats": [
+    {
+      "type": "hook", "in": 0.0, "out": 5.2,
+      "chip": "DE UNA IDEA A UN REEL",
+      "lines": ["TU AGENTE", "LO ESCRIBE", "EL VIDEO", "SE HACE SOLO"],
+      "accent": [2, 3]
+    },
+    {
+      "type": "tags", "in": 5.2, "out": 8.8,
+      "chip": "FUNCIONA CON TU IA",
+      "lines": ["PÍDESELO A", "LA QUE USES"],
+      "tags": ["CLAUDE", "CODEX", "CURSOR", "LA TUYA"],
+      "accent": 0
+    },
+    {
+      "type": "steps", "in": 8.8, "out": 24.4,
+      "chip": "ASÍ DE SIMPLE",
+      "steps": [
+        {"title": "PIDES", "sub": "un reel sobre lo que quieras contar"},
+        {"title": "APRUEBAS", "sub": "tu agente ya revisó cada escena"},
+        {"title": "PUBLICAS", "sub": "un video 9:16 listo para subir"}
+      ]
+    },
+    {
+      "type": "end", "in": 24.4, "out": 29.6,
+      "wordmark": "Tu Marca",
+      "studio": "STUDIO",
+      "headline": ["¿CUÁL ES TU", "PRÓXIMO REEL?"],
+      "cta": "PRUÉBALO HOY",
+      "handle": "@tumarca"
+    }
+  ]
+}

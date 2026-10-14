@@ -1,0 +1,21 @@
+.env
+venv/
+__pycache__/
+*.pyc
+input/*
+output/*
+!input/.gitkeep
+!output/.gitkeep
+.tmp/
+largos/
+
+# Playwright local (se instala con `npm install`)
+node_modules/
+
+# Material del curso (producto de pago, no se publica con el repo)
+curso/
+
+# AGENTS.md y CLAUDE.md SI se versionan: le dicen a cualquier agente como usar la
+# herramienta. Tus notas personales para Claude Code van en CLAUDE.local.md (no se sube).
+CLAUDE.local.md
+.cursorrules

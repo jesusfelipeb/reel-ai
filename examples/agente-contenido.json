@@ -1,0 +1,69 @@
+{
+  "name": "agente-contenido",
+  "brand": "sintergia",
+  "duration": 49.0,
+  "beats": [
+    {
+      "type": "hook", "in": 0.0, "out": 4.6,
+      "chip": "AUTOMATIZACIÓN CON IA",
+      "lines": ["¿Y SI TU", "CONTENIDO", "SE HICIERA", "SOLO?"],
+      "accent": [2, 3]
+    },
+    {
+      "type": "tasks", "in": 4.6, "out": 10.4,
+      "chip": "HOY, A MANO",
+      "title": "1 VIDEO LARGO",
+      "tasks": ["CORTAR", "SUBTITULAR", "DISEÑAR", "EXPORTAR"],
+      "times": "× 5 SHORTS",
+      "stamp": "HORAS PERDIDAS"
+    },
+    {
+      "type": "steps", "in": 10.4, "out": 20.6,
+      "chip": "CON UN AGENTE DE IA",
+      "steps": [
+        {"title": "TRANSCRIBE", "sub": "cada palabra, con su tiempo"},
+        {"title": "ELIGE", "sub": "los mejores momentos"},
+        {"title": "DISEÑA", "sub": "gráficos según lo que dices"},
+        {"title": "RENDERIZA", "sub": "subtítulos, marca y audio"}
+      ]
+    },
+    {
+      "type": "result", "in": 20.6, "out": 26.4,
+      "from": "1 VIDEO",
+      "to": "5 SHORTS",
+      "count_to": 5,
+      "sub": "LISTOS PARA PUBLICAR"
+    },
+    {
+      "type": "list", "in": 26.4, "out": 33.4,
+      "chip": "VENTAJAS",
+      "items": [
+        {"title": "MARCA CONSISTENTE", "sub": "misma paleta, fuentes y estilo"},
+        {"title": "LISTO PARA CADA RED", "sub": "9:16, zonas seguras, audio parejo"},
+        {"title": "ESCALA SIN HORAS EXTRA", "sub": "tú revisas, el agente produce"}
+      ]
+    },
+    {
+      "type": "tags", "in": 33.4, "out": 39.4,
+      "chip": "Y ESTO RECIÉN EMPIEZA",
+      "lines": ["UN AGENTE", "TAMBIÉN CREA:"],
+      "tags": ["GUIONES", "CARRUSELES", "CLIPS", "NEWSLETTERS", "MINIATURAS", "PUBLICACIÓN PROGRAMADA"],
+      "accent": 5
+    },
+    {
+      "type": "swap", "in": 39.4, "out": 44.6,
+      "kicker": "TU ROL CAMBIA",
+      "from": "EDITAR",
+      "to": "DIRIGIR",
+      "sub": "TÚ DECIDES. EL AGENTE EJECUTA."
+    },
+    {
+      "type": "end", "in": 44.6, "out": 49.0,
+      "wordmark": "Sintergia",
+      "studio": "STUDIO",
+      "headline": ["¿AUTOMATIZAMOS", "TU CONTENIDO?"],
+      "cta": "DÉJAME UN COMENTARIO",
+      "handle": "@sintergiastudio"
+    }
+  ]
+}

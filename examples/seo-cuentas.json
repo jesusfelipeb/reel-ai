@@ -1,0 +1,78 @@
+{
+  "name": "seo-cuentas",
+  "brand": "sintergia",
+  "source": "largos/01/seo.mp4",
+  "transcription": ".tmp/seo.transcription.json",
+  "start": 583.30,
+  "end": 623.38,
+  "end_card_seconds": 3.0,
+  "face": {"x": 0.46, "y": 0.33, "min_x": 420},
+
+  "split_windows": [[7.40, 30.60], [34.40, 40.08]],
+
+  "zoom": {
+    "full": [[0.0, 1.18], [0.7, 1.0, "outCubic"], [3.8, 1.10, "cut"], [30.6, 1.12, "cut"], [34.4, 1.2, "inOutCubic"]],
+    "split": [[7.85, 1.0], [13.9, 1.12, "cut"], [20.78, 1.0, "cut"], [27.72, 1.02, "cut"], [29.16, 1.12, "outCubic"], [34.85, 1.0, "cut"], [38.62, 1.1, "cut"], [40.08, 1.13, "linear"]]
+  },
+  "shake_at": [29.16],
+
+  "hook": {
+    "chip": "HAGAMOS CUENTAS",
+    "lines": ["¿CUÁNTO DINERO", "PIERDES POR NO", "APARECER", "EN GOOGLE?"],
+    "accent_line": 3,
+    "out": 3.55
+  },
+
+  "people": {
+    "in": 7.90,
+    "query": "odontólogos",
+    "type_from": 9.70,
+    "type_to": 10.60,
+    "count_to": 100,
+    "states": [
+      {"at": 7.90, "number": "100", "label": "PERSONAS BUSCAN", "accent": false},
+      {"at": 13.90, "number": "10%", "label": "TE HABRÍAN ENCONTRADO", "accent": true},
+      {"at": 17.76, "number": "10", "label": "CONSULTAS CONTIGO", "accent": true}
+    ],
+    "highlight_at": 13.90,
+    "highlight": [3, 17, 24, 38, 45, 51, 66, 72, 88, 95],
+    "out": 20.30
+  },
+
+  "money": {
+    "in": 20.78,
+    "chip": "ESO SE CONVIERTE EN PLATA",
+    "ghost_at": 21.42,
+    "price_at": 23.66,
+    "price": "$50.000",
+    "price_label": "POR CONSULTA",
+    "times_at": 26.52,
+    "times": "× 10",
+    "times_label": "PACIENTES",
+    "total_at": 27.72,
+    "total": 500000,
+    "stamp_at": 29.16,
+    "stamp": "PERDIDOS",
+    "out": 30.60
+  },
+
+  "swap": {
+    "kicker_at": 34.85,
+    "kicker": "POTENCIALES",
+    "from_at": 36.06,
+    "from": "CLIENTES",
+    "strike_at": 37.98,
+    "to_at": 38.62,
+    "to": "PACIENTES",
+    "sub_at": 39.06,
+    "sub": "QUE ESTÁS DEJANDO IR"
+  },
+
+  "end_card": {
+    "wordmark": "Sintergia",
+    "studio": "STUDIO",
+    "headline": ["¿APARECES", "EN ROJO?"],
+    "cta": "DÉJAME UN COMENTARIO",
+    "handle": "@sintergiastudio"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "diagnostico-gratis-reel-test",
+  "brand": "sintergia",
+  "duration": 29.6,
+  "beats": [
+    {
+      "type": "hook", "in": 0.0, "out": 5.2,
+      "chip": "PROFESIONALES INDEPENDIENTES",
+      "lines": ["NO NECESITAS", "UNA WEB", "SINO SABER", "QUÉ PIERDES"],
+      "accent": [2, 3]
+    },
+    {
+      "type": "tags", "in": 5.2, "out": 8.8,
+      "chip": "SEGURO TE PREGUNTASTE ESTO",
+      "lines": ["ESTO ES PARA", "TI SI ERES"],
+      "tags": ["MÉDICO", "ABOGADO", "CONTADOR", "TERAPEUTA"],
+      "accent": 0
+    },
+    {
+      "type": "steps", "in": 8.8, "out": 24.4,
+      "chip": "DIAGNÓSTICO GRATIS · 15 MIN",
+      "steps": [
+        {"title": "REVISO", "sub": "cómo consigues pacientes o clientes"},
+        {"title": "TE DIGO", "sub": "si necesitas web, agente IA o nada aún"},
+        {"title": "SALES", "sub": "con un plan claro, sin compromiso"}
+      ]
+    },
+    {
+      "type": "end", "in": 24.4, "out": 29.6,
+      "wordmark": "Sintergia",
+      "studio": "STUDIO",
+      "headline": ["¿DE VERDAD", "NECESITAS WEB?"],
+      "cta": "ESCRIBE DIAGNÓSTICO",
+      "handle": "@sintergiastudio"
+    }
+  ]
+}

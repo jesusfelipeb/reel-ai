@@ -1,0 +1,16 @@
+{
+  "name": "reel-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Renderizador de cuadros de reel-ai: Playwright captura la plantilla HTML cuadro por cuadro con renderAt(t).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.62.1"
+  }
+}
